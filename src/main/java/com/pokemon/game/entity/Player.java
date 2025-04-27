@@ -20,8 +20,12 @@ public class Player {
     private int y;
     
     // 玩家大小
-    private final int WIDTH = 32;
-    private final int HEIGHT = 48;
+    private final int WIDTH = 48; // 增加尺寸
+    private final int HEIGHT = 64; // 增加尺寸
+    
+    // 游戏地图的边界
+    private int mapWidth;
+    private int mapHeight;
     
     // 移动速度
     private final int SPEED = 4;
@@ -59,71 +63,115 @@ public class Player {
     }
     
     /**
+     * 设置地图尺寸，用于边界检测
+     */
+    public void setMapBounds(int width, int height) {
+        this.mapWidth = width;
+        this.mapHeight = height;
+    }
+    
+    /**
      * 加载玩家精灵图
      */
     private void loadPlayerSprites() {
-        // 加载玩家精灵表（不以/开头）
-        playerSheet = ImageLoader.loadImage("image/player/player.png");
-        
-        // 如果加载失败，创建一个空白图像避免空指针异常
-        if (playerSheet == null) {
-            playerSheet = new BufferedImage(WIDTH * 3, HEIGHT * 4, BufferedImage.TYPE_INT_ARGB);
-            System.err.println("警告：无法加载玩家图片，使用占位图像");
-        }
-        
-        // 初始化方向对应的精灵图数组
-        playerSprites = new HashMap<>();
-        
-        // 假设精灵表是3列4行，每行对应一个方向，每列是不同的动画帧
-        // 第一行：向下行走(DOWN)
-        // 第二行：向左行走(LEFT)
-        // 第三行：向右行走(RIGHT)
-        // 第四行：向上行走(UP)
-        
         try {
+            // 加载玩家精灵表（不以/开头）
+            playerSheet = ImageLoader.loadImage("image/player/player.png");
+            
+            // 如果加载失败，创建一个空白图像避免空指针异常
+            if (playerSheet == null) {
+                playerSheet = new BufferedImage(WIDTH * 3, HEIGHT * 4, BufferedImage.TYPE_INT_ARGB);
+                System.err.println("警告：无法加载玩家图片，使用占位图像");
+            }
+            
+            // 初始化方向对应的精灵图数组
+            playerSprites = new HashMap<>();
+            
+            // 确保精灵表尺寸正确
+            int frameWidth = Math.min(WIDTH, playerSheet.getWidth() / 3);
+            int frameHeight = Math.min(HEIGHT, playerSheet.getHeight() / 4);
+            
+            // 确保精灵表至少有足够的尺寸
+            if (frameWidth <= 0 || frameHeight <= 0) {
+                System.err.println("警告：精灵表尺寸错误: " + playerSheet.getWidth() + "x" + playerSheet.getHeight());
+                createDefaultSprites();
+                return;
+            }
+            
             // 向下行走动画帧
             BufferedImage[] downFrames = new BufferedImage[3];
             for (int i = 0; i < 3; i++) {
-                downFrames[i] = ImageLoader.getSubImage(playerSheet, i * WIDTH, 0, WIDTH, HEIGHT);
+                int x = i * frameWidth;
+                int y = 0;
+                if (x < playerSheet.getWidth() && y + frameHeight <= playerSheet.getHeight()) {
+                    downFrames[i] = ImageLoader.getSubImage(playerSheet, x, y, frameWidth, frameHeight);
+                } else {
+                    downFrames[i] = createPlaceholderImage();
+                }
             }
             playerSprites.put(Direction.DOWN, downFrames);
             
             // 向左行走动画帧
             BufferedImage[] leftFrames = new BufferedImage[3];
             for (int i = 0; i < 3; i++) {
-                leftFrames[i] = ImageLoader.getSubImage(playerSheet, i * WIDTH, HEIGHT, WIDTH, HEIGHT);
+                int x = i * frameWidth;
+                int y = frameHeight;
+                if (x < playerSheet.getWidth() && y + frameHeight <= playerSheet.getHeight()) {
+                    leftFrames[i] = ImageLoader.getSubImage(playerSheet, x, y, frameWidth, frameHeight);
+                } else {
+                    leftFrames[i] = createPlaceholderImage();
+                }
             }
             playerSprites.put(Direction.LEFT, leftFrames);
             
             // 向右行走动画帧
             BufferedImage[] rightFrames = new BufferedImage[3];
             for (int i = 0; i < 3; i++) {
-                rightFrames[i] = ImageLoader.getSubImage(playerSheet, i * WIDTH, HEIGHT * 2, WIDTH, HEIGHT);
+                int x = i * frameWidth;
+                int y = frameHeight * 2;
+                if (x < playerSheet.getWidth() && y + frameHeight <= playerSheet.getHeight()) {
+                    rightFrames[i] = ImageLoader.getSubImage(playerSheet, x, y, frameWidth, frameHeight);
+                } else {
+                    rightFrames[i] = createPlaceholderImage();
+                }
             }
             playerSprites.put(Direction.RIGHT, rightFrames);
             
             // 向上行走动画帧
             BufferedImage[] upFrames = new BufferedImage[3];
             for (int i = 0; i < 3; i++) {
-                upFrames[i] = ImageLoader.getSubImage(playerSheet, i * WIDTH, HEIGHT * 3, WIDTH, HEIGHT);
+                int x = i * frameWidth;
+                int y = frameHeight * 3;
+                if (x < playerSheet.getWidth() && y + frameHeight <= playerSheet.getHeight()) {
+                    upFrames[i] = ImageLoader.getSubImage(playerSheet, x, y, frameWidth, frameHeight);
+                } else {
+                    upFrames[i] = createPlaceholderImage();
+                }
             }
             playerSprites.put(Direction.UP, upFrames);
         } catch (Exception e) {
             System.err.println("加载玩家动画帧时出错: " + e.getMessage());
             e.printStackTrace();
-            
-            // 出错时创建简单的单帧动画
-            BufferedImage[] defaultFrame = new BufferedImage[3];
-            for (int i = 0; i < 3; i++) {
-                defaultFrame[i] = createPlaceholderImage();
-            }
-            
-            // 为所有方向设置相同的占位图
-            playerSprites.put(Direction.DOWN, defaultFrame);
-            playerSprites.put(Direction.LEFT, defaultFrame);
-            playerSprites.put(Direction.RIGHT, defaultFrame);
-            playerSprites.put(Direction.UP, defaultFrame);
+            createDefaultSprites();
         }
+    }
+    
+    /**
+     * 创建默认的精灵图数组
+     */
+    private void createDefaultSprites() {
+        // 为每个方向创建简单的单帧动画
+        BufferedImage[] defaultFrames = new BufferedImage[3];
+        for (int i = 0; i < 3; i++) {
+            defaultFrames[i] = createPlaceholderImage();
+        }
+        
+        // 为所有方向设置相同的占位图
+        playerSprites = new HashMap<>();
+        playerSprites.put(Direction.DOWN, defaultFrames.clone());
+        playerSprites.put(Direction.LEFT, defaultFrames.clone());
+        playerSprites.put(Direction.RIGHT, defaultFrames.clone());
+        playerSprites.put(Direction.UP, defaultFrames.clone());
     }
     
     /**
@@ -143,26 +191,54 @@ public class Player {
     
     public void moveUp() {
         direction = Direction.UP;
-        y -= SPEED;
-        moving = true;
+        int newY = y - SPEED;
+        
+        // 边界检测
+        if (newY >= 0) {
+            y = newY;
+            moving = true;
+        }
     }
     
     public void moveDown() {
         direction = Direction.DOWN;
-        y += SPEED;
-        moving = true;
+        int newY = y + SPEED;
+        
+        // 边界检测
+        if (mapHeight > 0 && newY + HEIGHT <= mapHeight) {
+            y = newY;
+            moving = true;
+        } else if (mapHeight == 0) {
+            // 如果地图高度未设置，则不限制
+            y = newY;
+            moving = true;
+        }
     }
     
     public void moveLeft() {
         direction = Direction.LEFT;
-        x -= SPEED;
-        moving = true;
+        int newX = x - SPEED;
+        
+        // 边界检测
+        if (newX >= 0) {
+            x = newX;
+            moving = true;
+        }
     }
     
     public void moveRight() {
         direction = Direction.RIGHT;
-        x += SPEED;
-        moving = true;
+        int newX = x + SPEED;
+        
+        // 边界检测
+        if (mapWidth > 0 && newX + WIDTH <= mapWidth) {
+            x = newX;
+            moving = true;
+        } else if (mapWidth == 0) {
+            // 如果地图宽度未设置，则不限制
+            x = newX;
+            moving = true;
+        }
     }
     
     /**

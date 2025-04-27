@@ -1,5 +1,7 @@
 package com.pokemon.game.state;
 
+import com.pokemon.game.GameWindow;
+
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
@@ -7,6 +9,8 @@ import java.util.ArrayList;
  * 游戏状态管理器，负责管理不同游戏场景的切换
  */
 public class GameStateManager {
+
+    private GameWindow gameWindow;
 
     // 游戏状态列表
     private ArrayList<GameState> gameStates;
@@ -17,7 +21,8 @@ public class GameStateManager {
     public static final int PLAY_STATE = 1;
     public static final int BATTLE_STATE = 2;
     
-    public GameStateManager() {
+    public GameStateManager(GameWindow gameWindow) {
+        this.gameWindow = gameWindow;
         gameStates = new ArrayList<GameState>();
         currentState = MENU_STATE;
         

@@ -47,16 +47,12 @@ public class Pokemon {
      * 加载宝可梦精灵图
      */
     private void loadSprites() {
-        // 由于没有具体的宝可梦图片资源，这里简单处理
-        // 实际应该根据宝可梦名称加载对应图片
-        
-        // 为了简化，这里使用简单的占位图
-        // 实际项目中，应该使用正确的宝可梦图片路径
-        
         try {
-            // 如果有皮卡丘，尝试加载皮卡丘图片
+            // 由于没有具体的宝可梦图片资源，这里简单处理
+            // 实际应该根据宝可梦名称加载对应图片
+            
+            // 如果有皮卡丘，尝试加载皮卡丘图片（路径不要以/开头）
             if (name.equals("皮卡丘")) {
-                // 假设存在皮卡丘的图片（路径不要以/开头）
                 frontSprite = ImageLoader.loadImage("image/pokemon/pikachu_front.png");
                 backSprite = ImageLoader.loadImage("image/pokemon/pikachu_back.png");
                 iconSprite = ImageLoader.loadImage("image/pokemon/pikachu_icon.png");
@@ -64,16 +60,15 @@ public class Pokemon {
             
             // 其他宝可梦使用默认图片
             if (frontSprite == null) {
-                // 没有具体图片时创建占位用彩色方块
                 frontSprite = createPlaceholderImage(name.hashCode());
             }
             
             if (backSprite == null) {
-                backSprite = createPlaceholderImage(name.hashCode() + 50); // 不同的颜色
+                backSprite = createPlaceholderImage(name.hashCode() + 50);
             }
             
             if (iconSprite == null) {
-                iconSprite = createPlaceholderImage(name.hashCode() + 100); // 不同的颜色
+                iconSprite = createPlaceholderImage(name.hashCode() + 100);
             }
         } catch (Exception e) {
             System.err.println("加载宝可梦图片时出错: " + e.getMessage());

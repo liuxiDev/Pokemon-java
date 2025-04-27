@@ -21,8 +21,8 @@ public class GameMap {
     
     // 地图尺寸
     private final int TILE_SIZE = 32;
-    private final int MAP_WIDTH = 25;
-    private final int MAP_HEIGHT = 20;
+    private int mapWidth;
+    private int mapHeight;
     
     // 碰撞检测用的障碍物列表
     private List<Rectangle> obstacles;
@@ -101,18 +101,22 @@ public class GameMap {
             // 创建一个简单的占位地图
             mapImage = createDefaultMap();
         }
+        
+        // 设置地图尺寸
+        mapWidth = mapImage.getWidth();
+        mapHeight = mapImage.getHeight();
     }
     
     /**
      * 创建默认地图作为占位符
      */
     private BufferedImage createDefaultMap() {
-        BufferedImage image = new BufferedImage(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(mapWidth, mapHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         
         // 绘制网格背景
-        for (int i = 0; i < MAP_HEIGHT; i++) {
-            for (int j = 0; j < MAP_WIDTH; j++) {
+        for (int i = 0; i < mapHeight; i++) {
+            for (int j = 0; j < mapWidth; j++) {
                 if ((i + j) % 2 == 0) {
                     g.setColor(new Color(200, 255, 200)); // 浅绿色
                 } else {
@@ -129,9 +133,9 @@ public class GameMap {
         // 添加一些简单的地图元素
         // 中央放置一个房子
         g.setColor(new Color(150, 100, 50)); // 棕色
-        g.fillRect(MAP_WIDTH/2 * TILE_SIZE - TILE_SIZE*2, MAP_HEIGHT/2 * TILE_SIZE - TILE_SIZE*2, TILE_SIZE*4, TILE_SIZE*4);
+        g.fillRect(mapWidth/2 * TILE_SIZE - TILE_SIZE*2, mapHeight/2 * TILE_SIZE - TILE_SIZE*2, TILE_SIZE*4, TILE_SIZE*4);
         g.setColor(Color.RED);
-        g.fillRect(MAP_WIDTH/2 * TILE_SIZE - TILE_SIZE, MAP_HEIGHT/2 * TILE_SIZE + TILE_SIZE, TILE_SIZE*2, TILE_SIZE/2);
+        g.fillRect(mapWidth/2 * TILE_SIZE - TILE_SIZE, mapHeight/2 * TILE_SIZE + TILE_SIZE, TILE_SIZE*2, TILE_SIZE/2);
         
         // 添加提示文字
         g.setColor(Color.BLACK);
@@ -146,13 +150,16 @@ public class GameMap {
      * 初始化地图数据
      */
     private void initMap() {
-        // 简化的地图数据，实际应该从文件读取
-        mapData = new int[MAP_HEIGHT][MAP_WIDTH];
+        // 根据地图图片大小初始化地图数据
+        int numTilesX = (mapWidth + TILE_SIZE - 1) / TILE_SIZE; // 向上取整
+        int numTilesY = (mapHeight + TILE_SIZE - 1) / TILE_SIZE; // 向上取整
+        
+        mapData = new int[numTilesY][numTilesX];
         
         // 外围墙壁
-        for(int i = 0; i < MAP_HEIGHT; i++) {
-            for(int j = 0; j < MAP_WIDTH; j++) {
-                if(i == 0 || i == MAP_HEIGHT - 1 || j == 0 || j == MAP_WIDTH - 1) {
+        for(int i = 0; i < numTilesY; i++) {
+            for(int j = 0; j < numTilesX; j++) {
+                if(i == 0 || i == numTilesY - 1 || j == 0 || j == numTilesX - 1) {
                     mapData[i][j] = 1; // 墙壁
                 } else {
                     mapData[i][j] = 0; // 道路
@@ -161,15 +168,15 @@ public class GameMap {
         }
         
         // 添加一些障碍物和草地
-        for(int i = 5; i < 10; i++) {
-            for(int j = 5; j < 10; j++) {
+        for(int i = 5; i < Math.min(10, numTilesY); i++) {
+            for(int j = 5; j < Math.min(10, numTilesX); j++) {
                 mapData[i][j] = 2; // 草地
             }
         }
         
         // 添加一个建筑
-        for(int i = 15; i < 18; i++) {
-            for(int j = 15; j < 20; j++) {
+        for(int i = 15; i < Math.min(18, numTilesY); i++) {
+            for(int j = 15; j < Math.min(20, numTilesX); j++) {
                 mapData[i][j] = 3; // 建筑
             }
         }
@@ -182,8 +189,8 @@ public class GameMap {
         obstacles = new ArrayList<>();
         grassAreas = new ArrayList<>();
         
-        for(int i = 0; i < MAP_HEIGHT; i++) {
-            for(int j = 0; j < MAP_WIDTH; j++) {
+        for(int i = 0; i < mapData.length; i++) {
+            for(int j = 0; j < mapData[i].length; j++) {
                 if(mapData[i][j] == 1 || mapData[i][j] == 3) {
                     // 墙壁和建筑是障碍物
                     obstacles.add(new Rectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE));
@@ -201,6 +208,9 @@ public class GameMap {
      * @param player 玩家对象
      */
     public void checkCollision(Player player) {
+        // 设置玩家不能超出地图边界
+        player.setMapBounds(mapWidth, mapHeight);
+        
         Rectangle playerRect = new Rectangle(player.getX(), player.getY(), player.getWidth(), player.getHeight());
         
         for(Rectangle obstacle : obstacles) {
@@ -260,8 +270,8 @@ public class GameMap {
      * @param g 图形对象
      */
     private void renderDebugGrid(Graphics2D g) {
-        for(int i = 0; i < MAP_HEIGHT; i++) {
-            for(int j = 0; j < MAP_WIDTH; j++) {
+        for(int i = 0; i < mapData.length; i++) {
+            for(int j = 0; j < mapData[i].length; j++) {
                 int x = j * TILE_SIZE;
                 int y = i * TILE_SIZE;
                 
@@ -292,5 +302,19 @@ public class GameMap {
         for(Rectangle grass : grassAreas) {
             g.drawRect(grass.x, grass.y, grass.width, grass.height);
         }
+    }
+    
+    /**
+     * 获取地图宽度
+     */
+    public int getMapWidth() {
+        return mapWidth;
+    }
+    
+    /**
+     * 获取地图高度
+     */
+    public int getMapHeight() {
+        return mapHeight;
     }
 } 

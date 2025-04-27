@@ -62,7 +62,7 @@ public class GameFrame extends JFrame implements Runnable {
         keyHandler = new KeyHandler();
         addKeyListener(keyHandler);
         
-        gsm = new GameStateManager();
+        gsm = new GameStateManager(null);
     }
 
     public void start() {
