@@ -16,8 +16,8 @@ import java.awt.image.BufferedImage;
 public class GameWindow extends JFrame implements Runnable {
     
     // 窗口默认大小
-    private static final int DEFAULT_WIDTH = 800;
-    private static final int DEFAULT_HEIGHT = 600;
+    private static final int DEFAULT_WIDTH = 320;
+    private static final int DEFAULT_HEIGHT = 320;
     
     // 窗口当前大小
     private int width;

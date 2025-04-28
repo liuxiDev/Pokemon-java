@@ -18,7 +18,11 @@ public class PlayState extends GameState {
     private Random random;
     
     // 遇到宝可梦的几率 (1/encounterRate)
-    private final int encounterRate = 10;
+    private final int encounterRate = 1;
+    
+    // 上次检查遇敌的时间，用于控制检查频率
+    private long lastEncounterCheck = 0;
+    private static final long ENCOUNTER_CHECK_INTERVAL = 500; // 毫秒
     
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -27,7 +31,7 @@ public class PlayState extends GameState {
     
     @Override
     public void init() {
-        player = new Player(400, 300);
+        player = new Player(100, 100);
         gameMap = new GameMap("town");
     }
     
@@ -67,6 +71,13 @@ public class PlayState extends GameState {
     }
     
     private void checkPokemonEncounter() {
+        long currentTime = System.currentTimeMillis();
+        
+        // 限制检查频率，避免过于频繁的检查
+        if (currentTime - lastEncounterCheck < ENCOUNTER_CHECK_INTERVAL) {
+            return;
+        }
+        
         // 玩家在草地上有几率遇到宝可梦
         if(gameMap.isOnGrass(player) && player.isMoving()) {
             if(random.nextInt(encounterRate) == 0) {
@@ -74,6 +85,8 @@ public class PlayState extends GameState {
                 gsm.setState(GameStateManager.BATTLE_STATE);
             }
         }
+        
+        lastEncounterCheck = currentTime;
     }
     
     @Override

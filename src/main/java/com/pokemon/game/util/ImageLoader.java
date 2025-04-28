@@ -31,35 +31,34 @@ public class ImageLoader {
         }
         
         try {
-            // 调整路径格式，确保以"/"开头
-            if (!path.startsWith("/")) {
-                path = "/" + path;
+            // 确保路径格式正确
+            String resourcePath = path;
+            if (resourcePath.startsWith("/")) {
+                resourcePath = resourcePath.substring(1);
             }
             
-            // 尝试从资源加载
-            InputStream stream = ImageLoader.class.getResourceAsStream(path);
+            // 首先尝试从文件系统加载
+            File file = new File("src/main/resources/" + resourcePath);
+            if (file.exists()) {
+                System.out.println("从文件系统加载图片: " + file.getAbsolutePath());
+                BufferedImage image = ImageIO.read(file);
+                imageCache.put(path, image);
+                return image;
+            }
             
-            // 如果资源未找到，尝试从文件系统加载
-            if (stream == null) {
-                // 移除开头的斜杠，转为相对路径
-                String relativePath = path.startsWith("/") ? path.substring(1) : path;
-                File file = new File("src/main/resources/" + relativePath);
-                
-                if (file.exists()) {
-                    System.out.println("从文件系统加载图片: " + file.getAbsolutePath());
-                    BufferedImage image = ImageIO.read(file);
-                    imageCache.put(path, image);
-                    return image;
-                } else {
-                    System.err.println("图片文件不存在: " + file.getAbsolutePath());
-                    // 创建一个简单的占位图
-                    return createPlaceholderImage(path);
-                }
-            } else {
-                // 正常从资源加载
+            // 如果文件系统加载失败，尝试从资源加载
+            String classPath = "/" + resourcePath;
+            InputStream stream = ImageLoader.class.getResourceAsStream(classPath);
+            
+            if (stream != null) {
+                System.out.println("从资源加载图片: " + classPath);
                 BufferedImage image = ImageIO.read(stream);
                 imageCache.put(path, image);
                 return image;
+            } else {
+                System.err.println("图片资源不存在: " + path);
+                // 创建一个简单的占位图
+                return createPlaceholderImage(path);
             }
         } catch (IOException e) {
             System.err.println("无法加载图片: " + path);

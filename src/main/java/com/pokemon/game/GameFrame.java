@@ -13,8 +13,8 @@ import java.awt.image.BufferedImage;
 public class GameFrame extends JFrame implements Runnable {
 
     // 窗口尺寸
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 320;
+    public static final int HEIGHT = 320;
     public static final String TITLE = "口袋妖怪绿宝石";
 
     // 游戏循环相关

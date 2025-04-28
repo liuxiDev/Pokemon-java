@@ -156,28 +156,96 @@ public class GameMap {
         
         mapData = new int[numTilesY][numTilesX];
         
+        // 初始化地图为道路
+        for(int i = 0; i < numTilesY; i++) {
+            for(int j = 0; j < numTilesX; j++) {
+                mapData[i][j] = 0; // 道路
+            }
+        }
+        
         // 外围墙壁
         for(int i = 0; i < numTilesY; i++) {
             for(int j = 0; j < numTilesX; j++) {
                 if(i == 0 || i == numTilesY - 1 || j == 0 || j == numTilesX - 1) {
                     mapData[i][j] = 1; // 墙壁
-                } else {
-                    mapData[i][j] = 0; // 道路
                 }
             }
         }
         
-        // 添加一些障碍物和草地
-        for(int i = 5; i < Math.min(10, numTilesY); i++) {
-            for(int j = 5; j < Math.min(10, numTilesX); j++) {
+        // 根据图片中添加左侧和右侧房屋的墙壁
+        // 左侧房屋
+        int leftHouseStartX = 2;
+        int leftHouseStartY = 2;
+        int houseWidth = 5;
+        int houseHeight = 4;
+        
+        // 右侧房屋
+        int rightHouseStartX = numTilesX - 7;
+        int rightHouseStartY = 2;
+        
+        // 添加房屋墙壁
+        for(int i = leftHouseStartY; i < leftHouseStartY + houseHeight; i++) {
+            for(int j = leftHouseStartX; j < leftHouseStartX + houseWidth; j++) {
+                mapData[i][j] = 3; // 建筑
+            }
+        }
+        
+        for(int i = rightHouseStartY; i < rightHouseStartY + houseHeight; i++) {
+            for(int j = rightHouseStartX; j < rightHouseStartX + houseWidth; j++) {
+                mapData[i][j] = 3; // 建筑
+            }
+        }
+        
+        // 添加中间建筑
+        int middleBuildingStartX = numTilesX / 2 - 2;
+        int middleBuildingStartY = numTilesY / 2 - 2;
+        int middleBuildingWidth = 4;
+        int middleBuildingHeight = 4;
+        
+        for(int i = middleBuildingStartY; i < middleBuildingStartY + middleBuildingHeight; i++) {
+            for(int j = middleBuildingStartX; j < middleBuildingStartX + middleBuildingWidth; j++) {
+                mapData[i][j] = 3; // 建筑
+            }
+        }
+        
+        // 添加下方建筑
+        int bottomBuildingStartX = numTilesX / 2 - 3;
+        int bottomBuildingStartY = numTilesY - 6;
+        int bottomBuildingWidth = 6;
+        int bottomBuildingHeight = 3;
+        
+        for(int i = bottomBuildingStartY; i < bottomBuildingStartY + bottomBuildingHeight; i++) {
+            for(int j = bottomBuildingStartX; j < bottomBuildingStartX + bottomBuildingWidth; j++) {
+                mapData[i][j] = 3; // 建筑
+            }
+        }
+        
+        // 添加草地区域
+        // 左上角草地
+        for(int i = 5; i < 10; i++) {
+            for(int j = 3; j < 7; j++) {
                 mapData[i][j] = 2; // 草地
             }
         }
         
-        // 添加一个建筑
-        for(int i = 15; i < Math.min(18, numTilesY); i++) {
-            for(int j = 15; j < Math.min(20, numTilesX); j++) {
-                mapData[i][j] = 3; // 建筑
+        // 右上角草地
+        for(int i = 5; i < 10; i++) {
+            for(int j = numTilesX - 8; j < numTilesX - 3; j++) {
+                mapData[i][j] = 2; // 草地
+            }
+        }
+        
+        // 右下角草地
+        for(int i = numTilesY - 10; i < numTilesY - 5; i++) {
+            for(int j = numTilesX - 8; j < numTilesX - 3; j++) {
+                mapData[i][j] = 2; // 草地
+            }
+        }
+        
+        // 左下角草地
+        for(int i = numTilesY - 10; i < numTilesY - 5; i++) {
+            for(int j = 3; j < 7; j++) {
+                mapData[i][j] = 2; // 草地
             }
         }
     }
@@ -261,7 +329,7 @@ public class GameMap {
         g.drawImage(mapImage, 0, 0, null);
         
         // 如果需要调试碰撞区域，可以绘制网格和碰撞框
-        // renderDebugGrid(g);
+         renderDebugGrid(g);
     }
     
     /**

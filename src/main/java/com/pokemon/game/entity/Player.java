@@ -80,16 +80,22 @@ public class Player {
             
             // 如果加载失败，创建一个空白图像避免空指针异常
             if (playerSheet == null) {
-                playerSheet = new BufferedImage(WIDTH * 3, HEIGHT * 4, BufferedImage.TYPE_INT_ARGB);
-                System.err.println("警告：无法加载玩家图片，使用占位图像");
+                System.err.println("警告：无法加载玩家图片，尝试加载player-2.png");
+                playerSheet = ImageLoader.loadImage("image/player/player-2.png");
+                
+                if (playerSheet == null) {
+                    System.err.println("警告：无法加载player-2.png，使用占位图像");
+                    playerSheet = new BufferedImage(WIDTH * 3, HEIGHT * 4, BufferedImage.TYPE_INT_ARGB);
+                }
             }
             
             // 初始化方向对应的精灵图数组
             playerSprites = new HashMap<>();
             
             // 确保精灵表尺寸正确
-            int frameWidth = Math.min(WIDTH, playerSheet.getWidth() / 3);
-            int frameHeight = Math.min(HEIGHT, playerSheet.getHeight() / 4);
+            int frameWidth = playerSheet.getWidth() / 2;
+            int frameHeight = playerSheet.getHeight() / 2
+                    ;
             
             // 确保精灵表至少有足够的尺寸
             if (frameWidth <= 0 || frameHeight <= 0) {
