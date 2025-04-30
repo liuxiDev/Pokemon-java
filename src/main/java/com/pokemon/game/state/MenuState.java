@@ -51,22 +51,22 @@ public class MenuState extends GameState {
     public void render(Graphics2D g) {
         // 绘制背景
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, 800, 600);
+        g.fillRect(0, 0, 320, 320);
         
         // 绘制标题
         g.setColor(Color.YELLOW);
-        g.setFont(new Font("黑体", Font.BOLD, 48));
-        g.drawString("口袋妖怪绿宝石", 200, 100);
+        g.setFont(new Font("黑体", Font.BOLD, 24));
+        g.drawString("口袋妖怪绿宝石", 50, 75);
         
         // 绘制选项
-        g.setFont(new Font("黑体", Font.PLAIN, 28));
+        g.setFont(new Font("黑体", Font.PLAIN, 14));
         for(int i = 0; i < options.length; i++) {
             if(i == currentChoice) {
                 g.setColor(Color.RED);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(options[i], 350, 300 + i * 40);
+            g.drawString(options[i], 120, 120 + i * 20);
         }
     }
 } 
